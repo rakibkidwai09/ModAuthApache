@@ -1,0 +1,63 @@
+name: Build ModAuthApache
+
+on:
+    push:
+        branches:
+            - main
+
+    workflow_dispatch:
+      inputs:
+        release:
+          description: 'Build type (Debug or Release)'
+          required: true
+          default: 'false'
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        env:
+          IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/modauthapache
+
+        steps:
+          - name: Checkout repository
+            uses: actions/checkout@v3
+
+          - name: Set up Docker Buildx
+            uses: docker/setup-buildx-action@v2
+
+          - name: Read Version
+            id: get_version
+            run: |
+              VERSION=$(cat VERSION)
+              echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+          - name: Login to Docker Hub
+            uses: docker/login-action@v3
+            with:
+              username: ${{ secrets.DOCKER_USERNAME }}
+              password: ${{ secrets.DOCKER_PASSWORD }}
+
+          - name: Run trivy security scan
+            uses: aquasecurity/trivy-action@master
+            with:
+              image-ref: ${{ secrets.DOCKER_USERNAME }}/modauthapache:latest
+              format: 'table'
+              severity: 'CRITICAL'
+              ignore-unfixed: true
+
+          - name: Build Docker image
+            run: |
+              docker build \
+              --build-arg OIDC_PROVIDER=${{ secrets.OIDC_PROVIDER }} \
+              --build-arg CLIENT_ID=${{ secrets.CLIENT_ID }} \
+              --build-arg CLIENT_SECRET=${{ secrets.CLIENT_SECRET }} \
+              -t $IMAGE_NAME:${{ env.VERSION }} \
+
+          - name: Push Docker image
+            run: |
+              docker push $IMAGE_NAME:${{ env.VERSION }}
+
+          - name: Tag latest
+            run: |
+              docker tag $IMAGE_NAME:${{ env.VERSION }} $IMAGE_NAME:latest
+              docker push $IMAGE_NAME:latest
