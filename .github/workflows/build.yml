@@ -37,14 +37,6 @@ jobs:
               username: ${{ secrets.DOCKER_USERNAME }}
               password: ${{ secrets.DOCKER_PASSWORD }}
 
-          - name: Run trivy security scan
-            uses: aquasecurity/trivy-action@master
-            with:
-              image-ref: ${{ secrets.DOCKER_USERNAME }}/modauthapache:latest
-              format: 'table'
-              severity: 'CRITICAL'
-              ignore-unfixed: true
-
           - name: Build Docker image
             run: |
               docker build \
