@@ -44,6 +44,7 @@ jobs:
               --build-arg CLIENT_ID=${{ secrets.CLIENT_ID }} \
               --build-arg CLIENT_SECRET=${{ secrets.CLIENT_SECRET }} \
               -t $IMAGE_NAME:${{ env.VERSION }} \
+              .
 
           - name: Push Docker image
             run: |
