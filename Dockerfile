@@ -2,13 +2,13 @@ FROM httpd:2.4
 
 RUN apt-get update && apt-get install -y \
     libcurl4-openssl-dev \
-    libjanson-dev \
-    lib-apache2-mod-auth-openidc \
+    libjansson-dev \
+    libapache2-mod-auth-openidc \
     apache2-dev \
     build-essential \
     git \
     wget \
-    && apt-get clean rm -rf /var/lib/apt/lists/*
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 COPY oidc.conf /usr/local/apache2/conf/extra/oidc.conf
 
