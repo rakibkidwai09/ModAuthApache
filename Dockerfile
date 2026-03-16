@@ -5,6 +5,7 @@ RUN apt-get update && apt-get install -y \
     libjansson-dev \
     apache2-dev \
     libssl-dev \
+    libcjose-dev \
     build-essential \
     git \
     wget \
